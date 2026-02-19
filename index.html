@@ -6,11 +6,11 @@
 <title>Quiz Pilates Personalizado</title>
 <style>
 :root{
-    --yellow:#F6C445;
-    --purple:#6C4AB6;
+    --green:#2ecc40;
+    --green-dark:#229933;
     --light-purple:#F3EEFF;
     --soft-yellow:#FFF6DA;
-    --text:#333;
+    --text:#000;
 }
 *{box-sizing:border-box;}
 body{
@@ -22,6 +22,7 @@ body{
     align-items:center;
     min-height:100vh;
     padding:20px;
+    color: var(--text);
 }
 .quiz-container{
     background:#fff;
@@ -35,7 +36,7 @@ body{
 }
 h1{
     text-align:center;
-    color:var(--purple);
+    color:var(--green-dark);
     font-size:22px;
     margin-bottom:20px;
 }
@@ -48,7 +49,7 @@ h1{
 .progress-bar{
     height:100%;
     width:0%;
-    background:linear-gradient(90deg,var(--yellow),var(--purple));
+    background:linear-gradient(90deg,var(--green),var(--green-dark));
     border-radius:10px;
     transition:0.3s ease;
 }
@@ -68,24 +69,19 @@ h1{
     border:2px solid #eee;
     cursor:pointer;
     transition:0.2s ease;
-    background:#fafafa;
+    background:var(--green);
+    color:#fff;
+    font-size:16px;
     text-align:left;
 }
 .option-btn:hover, .option-btn:focus{
-    border-color:var(--purple);
-    background:var(--light-purple);
-}
-input[type="number"]{
-    padding:12px;
-    border-radius:10px;
-    border:2px solid #ddd;
-    width:100%;
-    font-size:16px;
+    border-color:var(--green-dark);
+    background:var(--green-dark);
 }
 button{
     margin-top:15px;
     padding:12px;
-    background:var(--purple);
+    background:var(--green-dark);
     color:#fff;
     border:none;
     border-radius:10px;
@@ -96,7 +92,7 @@ button{
     text-align:center;
 }
 .result h2{
-    color:var(--purple);
+    color:var(--green-dark);
 }
 @media(max-width:480px){
     .quiz-container{
@@ -119,9 +115,8 @@ button{
 (() => {
 const questions = [
 {q:"1️⃣ Qual sua idade?", options:["18-25 🎂","26-35 🌸","36-45 🌿","46-60 🌼","Acima de 60 💛"]},
-{q:"2️⃣ Qual seu peso atual? ⚖️", type:"number"},
-{q:"3️⃣ Qual sua altura? 📏", type:"number"},
-// ... (demais perguntas iguais ao seu array original)
+{q:"2️⃣ Qual seu peso atual? ⚖️", options:["Menos de 50kg","50-59kg","60-69kg","70-79kg","80-89kg","90-99kg","100kg ou mais"]},
+{q:"3️⃣ Qual sua altura? 📏", options:["Menos de 1,50m","1,50m - 1,59m","1,60m - 1,69m","1,70m - 1,79m","1,80m ou mais"]},
 {q:"4️⃣ Você tem alguma condição de saúde diagnosticada?", options:["Nenhuma ✅","Hérnia de disco 🦴","Lombalgia 😖","Escoliose 📏","Pressão alta ❤️","Diabetes 🍬","Problemas na tireoide 🧬","Outros 📋"]},
 {q:"5️⃣ Está grávida ou suspeita?", options:["Sim 🤰","Não 🚫"]},
 {q:"6️⃣ Já fez cirurgia?", options:["Não ❌","Cesárea 👶","Abdominal 🏥","Coluna 🦴","Joelho/Quadril 🦵"]},
@@ -177,69 +172,30 @@ function loadQuestion(){
     
     quiz.appendChild(question);
 
-    // Remove botão avançar anterior se existir
-    let btnAvancar = document.getElementById('btnAvancar');
-    if(btnAvancar) btnAvancar.remove();
-
-    if(q.type==="number"){
-        const label = document.createElement("label");
-        label.setAttribute("for", "inputNumber");
-        label.innerText = "Digite o valor:";
-        quiz.appendChild(label);
-
-        const input=document.createElement("input");
-        input.type="number";
-        input.id = "inputNumber";
-        input.required = true;
-
-        // Avança ao pressionar Enter
-        input.addEventListener('keydown', function(e){
-            if(e.key === "Enter"){
-                e.preventDefault();
-                if(input.value !== "") next(input.value);
-            }
-        });
-
-        quiz.appendChild(input);
-
-        // Botão avançar para mobile
-        const btn = document.createElement("button");
+    const options=document.createElement("div");
+    options.className="options";
+    q.options.forEach((opt,i)=>{
+        const btn=document.createElement("button");
         btn.type = "button";
-        btn.id = "btnAvancar";
-        btn.innerText = "Avançar";
-        btn.onclick = () => {
-            if(input.value !== "") next(input.value);
-            else input.focus();
+        btn.className="option-btn";
+        btn.innerText=opt;
+        btn.setAttribute('tabindex', 0);
+        btn.onclick=()=>next(opt);
+        btn.onkeydown=(e)=>{
+            if(e.key==="Enter"||e.key===" "){
+                e.preventDefault();
+                next(opt);
+            }
         };
-        quiz.parentNode.appendChild(btn);
+        options.appendChild(btn);
+    });
+    quiz.appendChild(options);
 
-        input.focus();
-        
-    } else {
-        const options=document.createElement("div");
-        options.className="options";
-        q.options.forEach((opt,i)=>{
-            const btn=document.createElement("button");
-            btn.type = "button";
-            btn.className="option-btn";
-            btn.innerText=opt;
-            btn.setAttribute('tabindex', 0);
-            btn.onclick=()=>next(opt);
-            btn.onkeydown=(e)=>{
-                if(e.key==="Enter"||e.key===" "){
-                    e.preventDefault();
-                    next(opt);
-                }
-            };
-            options.appendChild(btn);
-        });
-        quiz.appendChild(options);
-        // Foco no primeiro botão
-        setTimeout(()=>{
-            const firstBtn = quiz.querySelector('.option-btn');
-            if(firstBtn) firstBtn.focus();
-        }, 50);
-    }
+    // Foco no primeiro botão
+    setTimeout(()=>{
+        const firstBtn = quiz.querySelector('.option-btn');
+        if(firstBtn) firstBtn.focus();
+    }, 50);
 }
 
 function next(answer){
@@ -247,10 +203,6 @@ function next(answer){
     answers.push(answer);
     current++;
     
-    // Remove botão avançar se existir
-    let btnAvancar = document.getElementById('btnAvancar');
-    if(btnAvancar) btnAvancar.remove();
-
     if(current<questions.length){
         loadQuestion();
     } else {
