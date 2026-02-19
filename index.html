@@ -1,243 +1,420 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR" class="h-full">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz Pilates Personalizado</title>
-<style>
-:root{
-    --green-light: #7be495;
-    --green-dark: #43b97f;
-    --shadow: 0 4px 12px rgba(67,185,127,0.18);
-    --light-purple:#F3EEFF;
-    --soft-yellow:#FFF6DA;
-    --text:#000;
-}
-*{box-sizing:border-box;}
-body{
-    margin:0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,var(--light-purple),var(--soft-yellow));
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    padding:20px;
-    color: var(--text);
-}
-.quiz-container{
-    background:#fff;
-    width:100%;
-    max-width:650px;
-    padding:30px;
-    border-radius:18px;
-    box-shadow:0 15px 40px rgba(0,0,0,0.08);
-    position:relative;
-    overflow:hidden;
-}
-h1{
-    text-align:center;
-    color:var(--green-dark);
-    font-size:22px;
-    margin-bottom:20px;
-}
-.progress{
-    height:6px;
-    background:#eee;
-    border-radius:10px;
-    margin-bottom:25px;
-}
-.progress-bar{
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,var(--green-light),var(--green-dark));
-    border-radius:10px;
-    transition:0.3s ease;
-}
-.question{
-    font-weight:600;
-    margin-bottom:20px;
-    color:var(--text);
-}
-.options{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
-.option-btn{
-    padding:14px 18px;
-    border-radius:12px;
-    border:none;
-    cursor:pointer;
-    transition:.2s ease, box-shadow .2s;
-    background:var(--green-light);
-    color:#000;
-    font-size:16px;
-    text-align:left;
-    box-shadow: var(--shadow);
-    font-weight:500;
-    outline:none;
-}
-.option-btn:hover, .option-btn:focus{
-    background:var(--green-dark);
-    color:#fff;
-    box-shadow: 0 6px 18px rgba(67,185,127,0.28);
-}
-button{
-    margin-top:15px;
-    padding:12px 20px;
-    background:var(--green-dark);
-    color:#fff;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:16px;
-}
-.result{
-    display:none;
-    text-align:center;
-}
-.result h2{
-    color:var(--green-dark);
-}
-@media(max-width:480px){
-    .quiz-container{
-        padding:20px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Saúde Feminina</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Nunito:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    .font-heading { font-family: 'Playfair Display', serif; }
+    .font-body { font-family: 'Nunito', sans-serif; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-}
-</style>
+    @keyframes pulse-soft {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+    .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .option-btn {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .option-btn:hover:not(:disabled) {
+      transform: translateX(8px);
+      box-shadow: 0 4px 20px rgba(190,130,150,0.3);
+    }
+    .progress-bar {
+      transition: width 0.5s ease-out;
+    }
+    .blob {
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    }
+  </style>
 </head>
-<body>
-<div class="quiz-container" role="main" aria-label="Quiz Pilates">
-    <h1>Descubra seu Perfil no Pilates ✨</h1>
-    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
-    <form id="quizForm" autocomplete="off">
-        <div id="quiz"></div>
-        <div class="result" id="result"></div>
-        <!-- O botão de avançar será inserido dinamicamente -->
-    </form>
+<body class="h-full font-body">
+<div id="app" class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #FDF2F4 0%, #F8E8EC 50%, #F0E0E6 100%);">
+ <!-- Decorative Elements -->
+ <div class="fixed top-10 left-10 w-32 h-32 bg-pink-200 opacity-30 blob animate-float" style="animation-delay: 0s;"></div>
+ <div class="fixed bottom-20 right-10 w-24 h-24 bg-rose-200 opacity-30 blob animate-float" style="animation-delay: 1s;"></div>
+ <div class="fixed top-1/2 right-20 w-16 h-16 bg-pink-300 opacity-20 blob animate-float" style="animation-delay: 2s;"></div>
+ <div class="relative z-10 min-h-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+   <!-- Start Screen -->
+   <div id="start-screen" class="w-full max-w-2xl text-center">
+     <div class="animate-fade-in">
+       <div class="mb-6">
+         <svg class="w-20 h-20 sm:w-24 sm:h-24 mx-auto animate-pulse-soft" viewbox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="45" fill="#BE8296" fill-opacity="0.2" /> <path d="M50 25C50 25 35 35 35 50C35 58 38 65 50 75C62 65 65 58 65 50C65 35 50 25 50 25Z" fill="#BE8296" /> <circle cx="50" cy="48" r="8" fill="#FDF2F4" />
+         </svg>
+       </div>
+       <h1 id="quiz-title" class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-4" style="color: #6B4A54;">Saúde Feminina</h1>
+       <p class="text-base sm:text-lg md:text-xl mb-2" style="color: #8B6B75;">Quiz sobre Bem-Estar e Assoalho Pélvico</p>
+       <p class="text-sm sm:text-base mb-8 max-w-md mx-auto" style="color: #A88B95;">Teste seus conhecimentos e aprenda mais sobre cuidados essenciais para a saúde da mulher</p>
+       <button id="start-btn" onclick="startQuiz()" class="option-btn px-8 py-4 rounded-full font-semibold text-lg text-white shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #BE8296 0%, #A06B7D 100%);"> ✨ Começar Quiz </button>
+       <p class="mt-6 text-sm" style="color: #B89AA5;">40 perguntas • 10 min</p>
+     </div>
+   </div>
+   <!-- Quiz Screen -->
+   <div id="quiz-screen" class="w-full max-w-2xl hidden">
+     <div class="rounded-3xl p-6 sm:p-8 shadow-xl" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);">
+       <!-- Progress -->
+       <div class="mb-6">
+         <div class="flex justify-between items-center mb-2"><span class="text-sm font-medium" style="color:#8B6B75;">Pergunta <span id="current-q">1</span> de 40</span> <span id="score-display" class="text-sm font-medium" style="color:#BE8296;"><span id="percentage">0</span>%</span>
+         </div>
+         <div class="h-2 rounded-full overflow-hidden" style="background:#F0E0E6;">
+           <div id="progress-bar" class="progress-bar h-full rounded-full" style="width:2.5%; background: linear-gradient(90deg,#BE8296,#D4A5B5);"></div>
+         </div>
+       </div>
+       <!-- Question -->
+       <div id="question-container" class="animate-fade-in">
+         <h2 id="question-text" class="font-heading text-xl sm:text-2xl font-semibold mb-6" style="color:#6B4A54;"></h2>
+         <div id="options-container" class="space-y-3"></div>
+       </div>
+       <!-- Feedback (não utilizado no fluxo automático) -->
+       <div id="feedback-container" class="hidden mt-6 p-4 rounded-2xl animate-fade-in">
+         <p id="feedback-text" class="font-medium mb-2"></p>
+         <p id="explanation-text" class="text-sm" style="color:#8B6B75;"></p>
+       </div>
+       <!-- Next Button (usado apenas em etapas especiais) -->
+       <button id="next-btn" onclick="nextQuestion()" class="hidden w-full mt-6 py-4 rounded-full font-semibold text-white transition-all hover:shadow-lg" style="background: linear-gradient(135deg,#BE8296 0%,#A06B7D 100%);"> Próxima Pergunta → </button>
+     </div>
+   </div>
+   <!-- Results Screen -->
+   <div id="results-screen" class="w-full max-w-2xl hidden">
+     <div class="rounded-3xl p-6 sm:p-8 shadow-xl text-center animate-fade-in" style="background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);">
+       <div id="result-icon" class="text-6xl sm:text-7xl mb-4"></div>
+       <h2 id="result-title" class="font-heading text-2xl sm:text-3xl font-bold mb-2" style="color:#6B4A54;"></h2>
+       <p id="result-score" class="text-xl mb-4" style="color:#BE8296;">Seu Perfil Personalizado</p>
+       <p id="result-message" class="mb-8 max-w-md mx-auto" style="color:#8B6B75;"></p>
+       <div class="grid grid-cols-2 gap-4 mb-8 max-w-xs mx-auto">
+         <div class="p-4 rounded-2xl" style="background:#F8E8EC;">
+           <p class="text-2xl font-bold" style="color:#6B4A54;" id="correct-count">0</p>
+           <p class="text-sm" style="color:#A88B95;">Acertos</p>
+         </div>
+         <div class="p-4 rounded-2xl" style="background:#F8E8EC;">
+           <p class="text-2xl font-bold" style="color:#6B4A54;" id="wrong-count">0</p>
+           <p class="text-sm" style="color:#A88B95;">Erros</p>
+         </div>
+       </div>
+       <div class="mb-8 p-4 rounded-2xl" style="background:#F8E8EC; border-left:4px solid #BE8296;">
+         <p id="diagnosis-text" class="text-sm sm:text-base" style="color:#6B4A54;"></p>
+       </div>
+       <button onclick="restartQuiz()" class="option-btn px-8 py-4 rounded-full font-semibold text-lg text-white shadow-lg" style="background: linear-gradient(135deg,#BE8296 0%,#A06B7D 100%);"> 🔄 Jogar Novamente </button>
+     </div>
+   </div>
+ </div>
 </div>
+
 <script>
-(() => {
+// --- CONFIG E QUESTÕES ---
+const defaultConfig = {
+ quiz_title: 'Saúde Feminina',
+ start_button_text: '✨ Começar Quiz',
+ primary_color: '#BE8296',
+ secondary_color: '#FDF2F4',
+ text_color: '#6B4A54',
+ accent_color: '#A06B7D',
+ surface_color: '#FFFFFF',
+ font_family: 'Nunito',
+ font_size: 16
+};
+
 const questions = [
-{q:"1️⃣ Qual sua idade?", options:["18-25 🎂","26-35 🌸","36-45 🌿","46-60 🌼","Acima de 60 💛"]},
-{q:"2️⃣ Qual seu peso atual? ⚖️", options:["Menos de 50kg","50-59kg","60-69kg","70-79kg","80-89kg","90-99kg","100kg ou mais"]},
-{q:"3️⃣ Qual sua altura? 📏", options:["Menos de 1,50m","1,50m - 1,59m","1,60m - 1,69m","1,70m - 1,79m","1,80m ou mais"]},
-{q:"4️⃣ Você tem alguma condição de saúde diagnosticada?", options:["Nenhuma ✅","Hérnia de disco 🦴","Lombalgia 😖","Escoliose 📏","Pressão alta ❤️","Diabetes 🍬","Problemas na tireoide 🧬","Outros 📋"]},
-{q:"5️⃣ Está grávida ou suspeita?", options:["Sim 🤰","Não 🚫"]},
-{q:"6️⃣ Já fez cirurgia?", options:["Não ❌","Cesárea 👶","Abdominal 🏥","Coluna 🦴","Joelho/Quadril 🦵"]},
-{q:"7️⃣ Toma medicamento contínuo?", options:["Não 💊","Anticoncepcional 🌸","Tireoide 🧬","Pressão ❤️","Antidepressivo 🧠"]},
-{q:"8️⃣ Nível de estresse?", options:["Baixo 😌","Moderado 🙂","Alto 😣","Altíssimo 😰"]},
-{q:"9️⃣ Já praticou Pilates?", options:["Nunca ❌","Já pratiquei 🧘","Pratico atualmente 💪","Instrutora/avançada 🔥"]},
-{q:"🔟 Quanto tempo praticou?", options:["<3 meses ⏳","3-12 meses 📅","+1 ano 🏆","Não se aplica 🚫"]},
-{q:"1️⃣1️⃣ Exercício atual?", options:["Nenhum 🛋️","Caminhada 🚶","Musculação 🏋️","Corrida 🏃","Dança 💃","Yoga 🧘","Pilates 💛","Outros ✨"]},
-{q:"1️⃣2️⃣ Frequência semanal?", options:["Não me exercito 🚫","1x 📆","2-3x 📅","4-5x 💪","Todos os dias 🔥"]},
-{q:"1️⃣3️⃣ Sente dores ao praticar?", options:["Não 😊","Costas 🦴","Joelhos 🦵","Pescoço/Ombros 💢","Em geral 😖"]},
-{q:"1️⃣4️⃣ Já teve lesão?", options:["Não 🙌","Leve 🙂","Moderada 😕","Grave 🚑"]},
-{q:"1️⃣5️⃣ Como é sua postura?", options:["Boa 👍","Curvada 😕","Muito curvada 😣","Cruzo pernas 🪑","Muito tempo sentada 💻"]},
-{q:"1️⃣6️⃣ Dor nas costas?", options:["Nunca 🎉","Raramente 🙂","Às vezes 😐","Frequentemente 😣","Diariamente 😖"]},
-{q:"1️⃣7️⃣ Onde dói?", options:["Não sinto 😊","Cervical 🧠","Torácica 🦴","Lombar ⚡","Toda coluna 😣"]},
-{q:"1️⃣8️⃣ Dor nos joelhos?", options:["Nunca 😊","Escadas 🪜","Durante exercícios 🏃","Em repouso 🛌","Constante 😖"]},
-{q:"1️⃣9️⃣ Mobilidade pescoço?", options:["Boa 👍","Rigidez 😬","Dor 😣","Estalos 🔊","Muito limitada 🚫"]},
-{q:"2️⃣0️⃣ Ombros tensos?", options:["Não 😌","Frequentemente 😕","Sempre 😣","Só estresse 😰"]},
-{q:"2️⃣1️⃣ Força abdômen?", options:["Fraco 🫠","Moderado 🙂","Forte 💪","Não sei 🤷"]},
-{q:"2️⃣2️⃣ Escape de urina?", options:["Nunca 😊","Raramente 🙂","Às vezes 😐","Frequentemente 😣","Sempre 😖"]},
-{q:"2️⃣3️⃣ Refeições por dia?", options:["1-2 🍽️","3 🍲","4 🍛","5+ 🥗","Sem horário ⏰"]},
-{q:"2️⃣4️⃣ Belisca?", options:["Nunca 🙌","Raramente 🙂","Às vezes 😐","Frequentemente 😕","Sempre 😣"]},
-{q:"2️⃣5️⃣ Água diária?", options:["<1L 💧","1-2L 💦","2-3L 🚰","3L+ 🌊"]},
-{q:"2️⃣6️⃣ Álcool?", options:["Não 🚫","Social 🍷","1-2x semana 🍺","3x+ 🍻"]},
-{q:"2️⃣7️⃣ Alimentação?", options:["Saudável 🥗","Moderada 🍲","Precisa melhorar 😐","Não saudável 🍕"]},
-{q:"2️⃣8️⃣ Hábito noturno?", options:["Não 😴","Celular 📱","Café ☕","Ansiedade 😰","Todos 😖"]},
-{q:"2️⃣9️⃣ Horas de sono?", options:["<5h 😵","5-6h 😴","7-8h 🌙","8h+ ✨"]},
-{q:"3️⃣0️⃣ Qualidade do sono?", options:["Excelente 🌟","Boa 🙂","Regular 😐","Ruim 😕","Péssima 😣"]},
-{q:"3️⃣1️⃣ Objetivo principal?", options:["Emagrecer 🔥","Definir 💪","Postura 🧍","Aliviar dores 🩹","Reduzir estresse 😌"]},
-{q:"3️⃣2️⃣ Quanto quer perder?", options:["2-5kg ⚖️","6-10kg 🔥","11-15kg 💪","16-20kg 😮","+20kg 🚀"]},
-{q:"3️⃣3️⃣ Em quanto tempo?", options:["1 mês ⚡","2 meses ⏳","3 meses 📅","6 meses 🗓️","+6 meses 🌿"]},
-{q:"3️⃣4️⃣ Parte que incomoda?", options:["Abdômen 🤍","Glúteos 🍑","Pernas 🦵","Braços 💪","Costas 🦴","Tudo 😣"]},
-{q:"3️⃣5️⃣ Já tentou emagrecer?", options:["Nunca 🚫","Desisti 😕","Recuperei 😣","Sempre tentando 🔄"]},
-{q:"3️⃣6️⃣ Por que desistiu?", options:["Tempo ⏰","Resultados 😐","Dores 😖","Desmotivação 😞","Não se aplica 🚫"]},
-{q:"3️⃣7️⃣ Tempo diário?", options:["10-15min ⏳","15-30min 📆","30-45min 💪","45-60min 🔥","+1h 🚀"]},
-{q:"3️⃣8️⃣ Ambiente?", options:["Casa sozinha 🏠","Online 💻","Estúdio 🧘","Academia 🏋️","Ar livre 🌿"]},
-{q:"3️⃣9️⃣ Tipo treino?", options:["Solo 🧘","Faixas/bola 🎾","Aparelhos 🏋️","Misturado 🔄"]},
-{q:"4️⃣0️⃣ Motivação?", options:["0-3 😞","4-6 🙂","7-8 💪","9-10 🔥"]}
+ // ETAPA 1
+ { question: "Você sabe exatamente onde fica e para que serve o assoalho pélvico?", options: ["Sim, conheço bem a anatomia e função", "Já ouvi falar mas não sei detalhes", "Não faço ideia do que é", "Acho que é algo relacionado a útero apenas"] },
+ { question: "Com que frequência você sente vontade urgente de urinar sem conseguir segurar até chegar ao banheiro?", options: ["Nunca acontece", "Raramente (1-2x no mês)", "Às vezes (1-2x na semana)", "Frequentemente (quase todo dia)"] },
+ { question: "Você percebe perda de urina ao espirrar, tossir, rir ou pular?", options: ["Nunca percebi", "Apenas quando estou com a bexiga muito cheia", "Sim, em esforços leves como tossir", "Sim, até em esforços mínimos ou sem esforço"] },
+ { question: "Você sente desconforto, pressão ou sensação de 'peso' na região vaginal?", options: ["Nunca senti", "Raramente, no final do dia", "Frequentemente, principalmente em pé", "Quase sempre, atrapalha minhas atividades"] },
+ { question: "Você tem dificuldade para evacuar, precisa fazer força excessiva ou sente que não esvazia completamente?", options: ["Nunca tive problemas", "Às vezes preciso fazer um pouco de força", "Frequentemente tenho constipação e faço muita força", "Sempre tenho dificuldade, uso laxantes com frequência"] },
+ { question: "Durante as relações sexuais, você sente dor, desconforto ou falta de sensibilidade?", options: ["Minha vida sexual é satisfatória sem desconfortos", "Às vezes sinto leve desconforto", "Frequentemente sinto dor durante a penetração", "Evito relações por causa do desconforto/dor"] },
+ { question: "Você conhece a diferença entre Pilates comum e Pilates específico para assoalho pélvico?", options: ["Sei bem a diferença e a importância", "Acho que é tudo a mesma coisa", "Não sabia que existia essa diferença", "Já ouvi falar mas não entendo o benefício"] },
+ { question: "Você já recebeu orientação médica ou de profissional de saúde sobre como cuidar do assoalho pélvico?", options: ["Sim, já fiz acompanhamento com fisioterapeuta pélvica", "Meu médico mencionou mas não deu detalhes", "Nunca nenhum profissional tocou no assunto", "Apenas li algo na internet por conta própria"] },
+ { question: "Você sente que seus músculos íntimos estão fracos ou flácidos?", options: ["Sinto que estão fortes e firmes", "Talvez estejam um pouco fracos", "Sim, noto flacidez e falta de controle", "Não sei avaliar, nunca pensei sobre isso"] },
+ { question: "Em uma escala de 0 a 10, o quanto você considera importante cuidar da saúde do assoalho pélvico?", options: ["8-10 - Extremamente importante", "5-7 - Importante, mas não urgente", "3-4 - Pouco importante agora", "0-2 - Não vejo relevância"] },
+
+ // ETAPA 2
+ { question: "Você já deixou de fazer alguma atividade (dança, academia, corrida) com medo de perder urina?", options: ["Nunca deixei, isso não me afeta", "Já pensei nisso mas continuo fazendo", "Sim, já evitei algumas atividades", "Sim, isso limita totalmente minha vida social"] },
+ { question: "Você precisa acordar à noite para urinar com frequência?", options: ["Durmo a noite toda sem levantar", "1 vez por noite", "2-3 vezes por noite", "Mais de 3 vezes ou tenho dificuldade para voltar a dormir"] },
+ { question: "Você sente que sua barriga é 'estufada' ou tem dificuldade para perder gordura abdominal localizada?", options: ["Minha barriga é lisa e definida", "Tenho um pouco de gordura localizada", "Sinto minha barriga sempre estufada, mesmo magra", "Barriga grande e flácida, difícil de reduzir"] },
+ { question: "Você sente dores nas costas (principalmente lombar) com frequência?", options: ["Raramente sinto dores", "Às vezes após esforço ou má postura", "Frequentemente, atrapalha meu dia", "Constantemente, já procurei ajuda médica"] },
+ { question: "Você percebe que sua postura piorou nos últimos anos?", options: ["Minha postura é boa/alongada", "Percebo que estou mais curvada", "Sim, noto que 'desabei' com o tempo", "Nunca prestei atenção nisso"] },
+ { question: "Você sente que seu abdômen não 'fecha' após a gravidez (diástase)?", options: ["Não tive filhos ou meu abdômen voltou ao normal", "Suspeito que tenha um pouco de separação", "Sim, diagnóstico de diástase", "Não sei o que é diástase"] },
+ { question: "Você tem dificuldade para contrair os músculos íntimos quando tenta (como se fosse segurar o xixi)?", options: ["Contraio facilmente e sinto a força", "Contraio mas acho fraco", "Não sinto contração alguma", "Nunca tentei fazer isso"] },
+ { question: "A qualidade do seu orgasmo mudou (diminuiu a intensidade) com o tempo?", options: ["Meus orgasmos são intensos como sempre", "Percebi uma leve diminuição", "Estão mais fracos e difíceis de alcançar", "Tenho dificuldade para ter orgasmos"] },
+ { question: "Você sente dores durante o período menstrual que atrapalham sua rotina?", options: ["Menstruação tranquila, sem dores", "Cólicas leves que não atrapalham", "Cólicas fortes que preciso de medicação", "Cólicas incapacitantes, não consigo trabalhar/estudar"] },
+ { question: "Você já pesquisou sobre cirurgias íntimas para melhorar estética ou função?", options: ["Nunca pesquisei, não me incomoda", "Já tive curiosidade mas não faria", "Já considerei fazer alguma", "Estou seriamente pensando em fazer cirurgia"] },
+
+ // ETAPA 3
+ { question: "Quantas gestações você já teve?", options: ["Nenhuma", "1 gestação", "2 gestações", "3 ou mais gestações"] },
+ { question: "Como foram seus partos?", options: ["Não tive filhos", "Apenas partos normais", "Apenas cesáreas", "Tive ambos (normal e cesárea)"] },
+ { question: "Se teve parto normal, o bebê era muito grande (mais de 3,5kg) ou precisou de fórceps?", options: ["Não se aplica/não tive parto normal", "Bebês com peso normal, sem fórceps", "Bebês grandes ou precisei de fórceps", "Tive episiotomia e/ou laceração"] },
+ { question: "Você está na menopausa ou no climatério?", options: ["Ainda não, menstruação regular", "Estou na perimenopausa (ciclos irregulares)", "Estou na menopausa (última menstruação há +12 meses)", "Já estou na pós-menopausa"] },
+ { question: "Você faz reposição hormonal?", options: ["Não faço e não pretendo", "Não, mas considero fazer", "Sim, faço reposição", "Já fiz mas parei"] },
+ { question: "Você pratica ou já praticou esportes de alto impacto (corrida, crossfit, jump, vôlei)?", options: ["Nunca pratiquei esse tipo de esporte", "Pratiquei no passado mas parei", "Pratico atualmente, mas com moderação", "Pratico intensamente e com frequência"] },
+ { question: "Você tem ou já teve diagnóstico de prolapso de órgãos pélvicos?", options: ["Não, nunca", "Suspeito que tenho mas não diagnosticado", "Sim, grau leve", "Sim, grau moderado a grave"] },
+ { question: "Alguém na sua família (mãe, avó, irmã) tem ou teve problemas de incontinência ou prolapso?", options: ["Não que eu saiba", "Sim, minha mãe tem", "Sim, mais de uma familiar", "Não tenho informação"] },
+ { question: "Você já fez alguma cirurgia pélvica ou abdominal (como histerectomia)?", options: ["Nunca fiz cirurgia", "Fiz apenas cesárea", "Fiz cirurgia para retirada de útero ou ovários", "Outra cirurgia abdominal/pélvica"] },
+ { question: "Você tem prisão de ventre crônica ou faz força frequente para evacuar?", options: ["Intestino regular, sem esforço", "Às vezes fico constipada", "Frequentemente tenho constipação", "Constantemente, é um problema crônico"] },
+
+ // ETAPA 4
+ { question: "Com que frequência você pratica exercícios físicos atualmente?", options: ["4-7x por semana", "2-3x por semana", "1x por semana ou menos", "Não pratico exercícios"] },
+ { question: "Você já praticou Pilates antes?", options: ["Sim, pratico atualmente", "Já pratiquei mas parei", "Nunca pratiquei mas tenho vontade", "Não tenho interesse"] },
+ { question: "Se você já fez Pilates, era um Pilates convencional ou específico para assoalho pélvico?", options: ["Não fiz Pilates", "Fiz Pilates convencional (solo/aparalhos)", "Fiz com foco em assoalho pélvico", "Não sei a diferença"] },
+ { question: "Quanto tempo você conseguiria dedicar por dia para cuidar da sua saúde pélvica?", options: ["Até 10 minutos", "10-20 minutos", "20-30 minutos", "Mais de 30 minutos"] },
+ { question: "Você prefere treinar:", options: ["Seguindo vídeos e aulas online", "Com acompanhamento presencial", "Material escrito para fazer no meu ritmo", "Combinado: online + suporte"] },
+ { question: "O que te motiva a cuidar mais da sua saúde íntima agora?", options: ["Prevenir problemas futuros", "Resolver desconfortos que já tenho", "Melhorar minha vida sexual", "Me sentir mais confiante e feminina"] },
+ { question: "Você já buscou ajuda profissional específica (fisioterapeuta pélvica)?", options: ["Sim, já fiz acompanhamento", "Não, mas gostaria de ter acesso", "É muito caro/difícil achar profissional", "Nunca pensei nisso"] },
+ { question: "Você se sente constrangida em falar sobre esses assuntos com profissionais de saúde?", options: ["Não, falo naturalmente", "Sinto um pouco de vergonha", "Muita vergonha, evito tocar no assunto", "Depende do profissional"] },
+ { question: "Se existisse um método 100% online, prático e discreto para fortalecer seu assoalho pélvico, você compraria?", options: ["Compraria imediatamente", "Precisaria conhecer melhor", "Talvez, dependendo do preço", "Não acredito que funcione online"] },
+ { question: "Qual resultado você mais deseja alcançar com o fortalecimento do assoalho pélvico?", options: ["Parar de perder urina e viver sem medo", "Melhorar minha vida sexual e autoestima", "Ter barriga mais definida e melhor postura", "Prevenir problemas futuros e envelhecer com saúde"] }
 ];
 
-let current=0, answers=[];
+const stageInfo = {
+1:{start:0,end:10,
+curiosity:"Você sabia que o assoalho pélvico é composto por camadas de músculos, ligamentos e tecidos conjuntivos que formam uma espécie de 'rede' sustentando útero, bexiga e intestino? Quando essa musculatura enfraquece, órgãos podem descer de posição - é o que chamamos de prolapso."},
+2:{start:10,end:20,
+curiosity:"Pesquisas mostram que 1 em cada 3 mulheres terá algum grau de incontinência urinária ao longo da vida. O mais surpreendente? Muitas acham que é 'normal' após parto ou com a idade, mas 80% dos casos podem ser revertidos com exercícios específicos."},
+3:{start:20,end:30,
+curiosity:"Estudo da Universidade de Michigan revelou que mulheres que praticam Pilates específico para assoalho pélvico por 12 semanas têm 67% mais força muscular comparadas a quem faz apenas exercícios convencionais. O segredo está na ativação correta dos músculos profundos."},
+4:{start:30,end:40,
+curiosity:"O assoalho pélvico é o único grupo muscular do corpo que trabalha 24 horas por dia - mesmo quando você dorme, ele sustenta seus órgãos. Por isso, exercícios de fortalecimento não são apenas 'treino', mas sim manutenção essencial para qualidade de vida."}
+};
 
-function loadQuestion(){
-    const quiz=document.getElementById("quiz");
-    quiz.innerHTML="";
-    
-    const q=questions[current];
-    
-    document.getElementById("progressBar").style.width=((current/questions.length)*100)+"%";
-    
-    const question=document.createElement("div");
-    question.className="question";
-    question.innerText=q.q;
-    
-    quiz.appendChild(question);
+// --- VARIÁVEIS DE ESTADO ---
+let currentQuestion = 0;
+let userAnswers = [];
 
-    const options=document.createElement("div");
-    options.className="options";
-    q.options.forEach((opt,i)=>{
-        const btn=document.createElement("button");
-        btn.type = "button";
-        btn.className="option-btn";
-        btn.innerText=opt;
-        btn.setAttribute('tabindex', 0);
-        btn.onclick=()=>next(opt);
-        btn.onkeydown=(e)=>{
-            if(e.key==="Enter"||e.key===" "){
-                e.preventDefault();
-                next(opt);
-            }
-        };
-        options.appendChild(btn);
-    });
-    quiz.appendChild(options);
-
-    // Foco no primeiro botão
-    setTimeout(()=>{
-        const firstBtn = quiz.querySelector('.option-btn');
-        if(firstBtn) firstBtn.focus();
-    }, 50);
+// --- FLUXO PRINCIPAL ---
+function startQuiz() {
+ document.getElementById('start-screen').classList.add('hidden');
+ document.getElementById('quiz-screen').classList.remove('hidden');
+ currentQuestion = 0;
+ userAnswers = [];
+ showQuestion();
 }
 
-function next(answer){
-    if(answer === undefined || answer === null || answer === "") return; // Não avança sem resposta
-    answers.push(answer);
-    current++;
-    
-    if(current<questions.length){
-        loadQuestion();
-    } else {
-        showResult();
-    }
+function showQuestion() {
+ const q = questions[currentQuestion];
+ const percentage = Math.round(((currentQuestion + 1) / questions.length) * 100);
+ document.getElementById('current-q').textContent = currentQuestion + 1;
+ document.getElementById('percentage').textContent = percentage;
+ document.getElementById('progress-bar').style.width = `${percentage}%`;
+
+ document.getElementById('question-text').textContent = q.question;
+
+ const optionsContainer = document.getElementById('options-container');
+ optionsContainer.innerHTML = '';
+
+ q.options.forEach((option, index) => {
+   const btn = document.createElement('button');
+   btn.className = `option-btn w-full p-4 rounded-2xl text-left font-medium border-2 transition-all delay-${(index + 1) * 100}`;
+   btn.style.cssText = 'background:#FDF2F4; border-color:#E8D0D8; color:#6B4A54;';
+   btn.setAttribute('aria-label', option);
+   btn.setAttribute('tabindex', '0');
+   btn.innerHTML = `<span class='inline-block w-8 h-8 rounded-full text-center leading-8 mr-3' style='background:#E8D0D8;color:#6B4A54;'>${String.fromCharCode(65 + index)}</span>${option}`;
+   btn.onclick = () => selectAnswer(index);
+   optionsContainer.appendChild(btn);
+ });
+
+ document.getElementById('next-btn').classList.add('hidden');
+
+ // Animação e acessibilidade
+ const container = document.getElementById('question-container');
+ container.style.opacity = '0';
+ container.style.transform = 'translateY(20px)';
+ setTimeout(() => {
+   container.style.transition = 'all 0.5s ease-out';
+   container.style.opacity = '1';
+   container.style.transform = 'translateY(0)';
+   // Foco no primeiro botão
+   const firstBtn = optionsContainer.querySelector('button');
+   if (firstBtn) firstBtn.focus();
+ }, 50);
 }
 
-function showResult(){
-    document.getElementById("quiz").style.display="none";
-    document.getElementById("progressBar").style.width="100%";
-    
-    const result=document.getElementById("result");
-    result.style.display="block";
+function selectAnswer(index) {
+ // Desabilita opções
+ const options = document.getElementById('options-container').children;
+ for (let i = 0; i < options.length; i++) {
+   options[i].disabled = true;
+   if (i === index) {
+     options[i].style.cssText = 'background:#BE8296;border-color:#BE8296;color:#FDF2F4;';
+   }
+ }
 
-    let profile="Perfil Iniciante com Dores 💛";
-    
-    if(answers[4]?.includes("Sim")) profile="Perfil Pós-Parto ou Gestante 🤰";
-    else if(answers[8]?.includes("Já")||answers[8]?.includes("Pratico")) profile="Perfil Ex-Praticante 🔥";
-    else if(answers[11]?.includes("Não")&&answers[39]?.includes("0-3")) profile="Perfil Sedentária com Sobrepeso 🌸";
+ userAnswers.push({ question: currentQuestion, answer: index });
 
-    result.innerHTML=`<h2>${profile}</h2>
-      <p>Com base nas suas respostas, criamos um plano ideal para você começar com segurança, eficiência e resultados reais.</p>
-      <p><strong>Próximo passo:</strong> Clique abaixo para receber seu plano personalizado.</p>
-      <button type="button" onclick="window.location.reload()">Refazer Quiz 🔄</button>`;
+ // Checa se é fim de etapa (10/20/30) ou fim do quiz
+ if ((currentQuestion + 1) % 10 === 0 && currentQuestion !== questions.length -1) {
+   setTimeout(() => showStageBreak(), 400);
+   return;
+ }
+
+ if (currentQuestion === questions.length -1) {
+   setTimeout(() => showResults(), 400);
+   return;
+ }
+
+ // Avança automaticamente para próxima pergunta após pequeno delay
+ setTimeout(() => {
+   currentQuestion++;
+   showQuestion();
+ }, 400);
 }
 
-window.addEventListener('DOMContentLoaded', loadQuestion);
+function nextQuestion() {
+ currentQuestion++;
+ showQuestion();
+}
 
-})();
+function showStageBreak() {
+ document.getElementById('quiz-screen').classList.add('hidden');
+
+ const stageBreak = document.createElement('div');
+ stageBreak.id = 'stage-break';
+ stageBreak.className = 'w-full max-w-2xl text-center animate-fade-in';
+
+ const stage = Math.floor(currentQuestion / 10);
+ const curiosity = stageInfo[stage].curiosity;
+
+ stageBreak.innerHTML = `
+   <div class='rounded-3xl p-6 sm:p-8 shadow-xl animate-fade-in' style='background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);'>
+     <div class='text-5xl mb-4'>🌟</div>
+     <h2 class='font-heading text-2xl sm:text-3xl font-bold mb-4' style='color:#6B4A54;'>Etapa ${stage} Completa!</h2>
+     <div class='mb-6 p-4 rounded-2xl' style='background:#F8E8EC;border-left:4px solid #BE8296;'>
+       <p class='text-sm sm:text-base' style='color:#6B4A54;'>${curiosity}</p>
+     </div>
+     <button onclick='continueQuiz()' class='option-btn px-8 py-4 rounded-full font-semibold text-lg text-white shadow-lg hover:shadow-xl' style='background: linear-gradient(135deg,#BE8296 0%,#A06B7D 100%);'>
+       Próxima Etapa →
+     </button>
+   </div>`;
+ const container = document.getElementById('app').querySelector('.relative.z-10.min-h-full');
+ container.innerHTML = '';
+ container.appendChild(stageBreak);
+}
+
+function continueQuiz() {
+ const stageBreak = document.getElementById('stage-break');
+ if (stageBreak) stageBreak.remove();
+ document.getElementById('quiz-screen').classList.remove('hidden');
+ currentQuestion++;
+ showQuestion();
+}
+
+function showResults() {
+ document.getElementById('quiz-screen').classList.add('hidden');
+ document.getElementById('results-screen').classList.remove('hidden');
+
+ // --- Lógica personalizada simplificada ---
+ const stage1Answers = userAnswers.filter(a => a.question <10).map(a=>a.answer);
+ const stage2Answers = userAnswers.filter(a => a.question >=10 && a.question<20).map(a=>a.answer);
+ const stage3Answers = userAnswers.filter(a => a.question >=20 && a.question<30).map(a=>a.answer);
+ const stage4Answers = userAnswers.filter(a => a.question >=30).map(a=>a.answer);
+
+ const severity1 = stage1Answers.reduce((sum,a)=>sum+a,0);
+ const severity2 = stage2Answers.reduce((sum,a)=>sum+a,0);
+ const severity3 = stage3Answers.reduce((sum,a)=>sum+a,0);
+ const severity4 = stage4Answers.reduce((sum,a)=>sum+a,0);
+
+ const totalSeverity = severity1+severity2+severity3+severity4;
+ const maxSeverity =30*4;
+ const severityPercentage =(totalSeverity/maxSeverity)*100;
+
+ const hasPregnancyHistory=stage3Answers.some((a,i)=>(i===0||i===1||i===2)&&a>0);
+ const hasMenopauseSymptoms=stage3Answers.some((a,i)=>(i===3||i===4)&&a>0);
+ const hasSevereSymptoms=stage2Answers.some(a=>a>=2);
+ const isReadyForChange=stage4Answers.slice(0,3).some(a=>a===0);
+
+ document.getElementById('correct-count').textContent='✓';
+ document.getElementById('wrong-count').textContent=userAnswers.length+'/40';
+
+ let icon,title,message,diagnosis;
+
+ if(hasMenopauseSymptoms&&severityPercentage>=40){
+   icon='🌱';
+   title='PERIMENOPAUSA & TRANSFORMAÇÃO';
+   message='Você está vivenciando mudanças significativas em seu corpo!';
+   diagnosis='Você está na FASE DE TRANSFORMAÇÃO HORMONAL...';
+ }else if(hasPregnancyHistory&&severity2>=15){
+   icon='💪';
+   title='GUERREIRA EM RECUPERAÇÃO';
+   message='Seu corpo passou por transformações e merece cuidado especial!';
+   diagnosis='Seu corpo passou pela transformação mais poderosa que existe...';
+ }else if(severity2>=20&&isReadyForChange){
+   icon='💝';
+   title='CRÔNICA DECIDIDA';
+   message='Você está pronta para encontrar sua solução definitiva!';
+   diagnosis='Você é uma PERSEVERANTE DA SAÚDE PÉLVICA...';
+ }else{
+   icon='🌟';
+   title='CONSCIENTE PREPARADA';
+   message='Você está buscando conhecimento para cuidar bem de si mesma!';
+   diagnosis='Seu mapa revela que você está na FASE DE ALERTA SILENCIOSO...';
+ }
+
+ document.getElementById('result-icon').textContent=icon;
+ document.getElementById('result-title').textContent=title;
+ document.getElementById('result-message').textContent=message;
+ const diagnosisElement=document.getElementById('diagnosis-text');
+ if(diagnosisElement){diagnosisElement.textContent=diagnosis;}
+}
+
+function restartQuiz() {
+ document.getElementById('results-screen').classList.add('hidden');
+ document.getElementById('start-screen').classList.remove('hidden');
+}
+
+// --- CONFIGURAÇÃO DINÂMICA ---
+async function onConfigChange(config) {
+ const title=config.quiz_title||defaultConfig.quiz_title;
+ const startBtnText=config.start_button_text||defaultConfig.start_button_text;
+ const fontFamily=config.font_family||defaultConfig.font_family;
+ const fontSize=config.font_size||defaultConfig.font_size;
+
+ document.getElementById('quiz-title').textContent=title;
+ document.getElementById('start-btn').textContent=startBtnText;
+
+ document.body.style.fontFamily=`${fontFamily}, sans-serif`;
+ document.getElementById('quiz-title').style.fontSize=`${fontSize*2.5}px`;
+}
+
+if(window.elementSdk){
+ window.elementSdk.init({
+   defaultConfig,
+   onConfigChange,
+   mapToCapabilities:(config)=>({
+     recolorables:[
+       {get:()=>config.secondary_color||defaultConfig.secondary_color,set:(value)=>window.elementSdk.setConfig({secondary_color:value})},
+       {get:()=>config.surface_color||defaultConfig.surface_color,set:(value)=>window.elementSdk.setConfig({surface_color:value})},
+       {get:()=>config.text_color||defaultConfig.text_color,set:(value)=>window.elementSdk.setConfig({text_color:value})},
+       {get:()=>config.primary_color||defaultConfig.primary_color,set:(value)=>window.elementSdk.setConfig({primary_color:value})},
+       {get:()=>config.accent_color||defaultConfig.accent_color,set:(value)=>window.elementSdk.setConfig({accent_color:value})}
+     ],
+     borderables:[]
+     ,fontEditable:{get:()=>config.font_family||defaultConfig.font_family,set:(value)=>window.elementSdk.setConfig({font_family:value})},
+     fontSizeable:{get:()=>config.font_size||defaultConfig.font_size,set:(value)=>window.elementSdk.setConfig({font_size:value})}
+   }),
+   mapToEditPanelValues:(config)=>new Map([
+     ['quiz_title',config.quiz_title||defaultConfig.quiz_title],
+     ['start_button_text',config.start_button_text||defaultConfig.start_button_text]
+   ])
+ });
+}
 </script>
+
 </body>
 </html>
