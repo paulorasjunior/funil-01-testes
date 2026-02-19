@@ -282,29 +282,28 @@ function nextQuestion() {
 }
 
 function showStageBreak() {
- document.getElementById('quiz-screen').classList.add('hidden');
-
- const stageBreak = document.createElement('div');
- stageBreak.id = 'stage-break';
- stageBreak.className = 'w-full max-w-2xl text-center animate-fade-in';
-
- const stage = Math.floor(currentQuestion / 10);
- const curiosity = stageInfo[stage].curiosity;
-
- stageBreak.innerHTML = `
-   <div class='rounded-3xl p-6 sm:p-8 shadow-xl animate-fade-in' style='background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);'>
-     <div class='text-5xl mb-4'>🌟</div>
-     <h2 class='font-heading text-2xl sm:text-3xl font-bold mb-4' style='color:#6B4A54;'>Etapa ${stage} Completa!</h2>
-     <div class='mb-6 p-4 rounded-2xl' style='background:#F8E8EC;border-left:4px solid #BE8296;'>
-       <p class='text-sm sm:text-base' style='color:#6B4A54;'>${curiosity}</p>
-     </div>
-     <button onclick='continueQuiz()' class='option-btn px-8 py-4 rounded-full font-semibold text-lg text-white shadow-lg hover:shadow-xl' style='background: linear-gradient(135deg,#BE8296 0%,#A06B7D 100%);'>
-       Próxima Etapa →
-     </button>
-   </div>`;
- const container = document.getElementById('app').querySelector('.relative.z-10.min-h-full');
- container.innerHTML = '';
- container.appendChild(stageBreak);
+  document.getElementById('quiz-screen').classList.add('hidden');
+  let stageBreak = document.getElementById('stage-break');
+  if (!stageBreak) {
+    stageBreak = document.createElement('div');
+    stageBreak.id = 'stage-break';
+    stageBreak.className = 'w-full max-w-2xl text-center animate-fade-in';
+    document.querySelector('.relative.z-10.min-h-full').appendChild(stageBreak);
+  }
+  const stage = Math.floor(currentQuestion / 10);
+  const curiosity = stageInfo[stage].curiosity;
+  stageBreak.innerHTML = `
+    <div class='rounded-3xl p-6 sm:p-8 shadow-xl animate-fade-in' style='background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);'>
+      <div class='text-5xl mb-4'>🌟</div>
+      <h2 class='font-heading text-2xl sm:text-3xl font-bold mb-4' style='color:#6B4A54;'>Etapa ${stage} Completa!</h2>
+      <div class='mb-6 p-4 rounded-2xl' style='background:#F8E8EC;border-left:4px solid #BE8296;'>
+        <p class='text-sm sm:text-base' style='color:#6B4A54;'>${curiosity}</p>
+      </div>
+      <button onclick='continueQuiz()' class='option-btn px-8 py-4 rounded-full font-semibold text-lg text-white shadow-lg hover:shadow-xl' style='background: linear-gradient(135deg,#BE8296 0%,#A06B7D 100%);'>
+        Próxima Etapa →
+      </button>
+    </div>`;
+  stageBreak.classList.remove('hidden');
 }
 
 function continueQuiz() {
