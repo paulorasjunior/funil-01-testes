@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Pilates Personalizado</title>
+<style>
+:root{
+    --yellow:#F6C445;
+    --purple:#6C4AB6;
+    --light-purple:#F3EEFF;
+    --soft-yellow:#FFF6DA;
+    --text:#333;
+}
+*{box-sizing:border-box;}
+body{
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,var(--light-purple),var(--soft-yellow));
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+.quiz-container{
+    background:#fff;
+    width:100%;
+    max-width:650px;
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.08);
+    position:relative;
+    overflow:hidden;
+}
+h1{
+    text-align:center;
+    color:var(--purple);
+    font-size:22px;
+    margin-bottom:20px;
+}
+.progress{
+    height:6px;
+    background:#eee;
+    border-radius:10px;
+    margin-bottom:25px;
+}
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--yellow),var(--purple));
+    border-radius:10px;
+    transition:0.3s ease;
+}
+.question{
+    font-weight:600;
+    margin-bottom:20px;
+    color:var(--text);
+}
+.options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+.option-btn{
+    padding:14px;
+    border-radius:12px;
+    border:2px solid #eee;
+    cursor:pointer;
+    transition:0.2s ease;
+    background:#fafafa;
+    text-align:left;
+}
+.option-btn:hover, .option-btn:focus{
+    border-color:var(--purple);
+    background:var(--light-purple);
+}
+input[type="number"]{
+    padding:12px;
+    border-radius:10px;
+    border:2px solid #ddd;
+    width:100%;
+    font-size:16px;
+}
+button{
+    margin-top:15px;
+    padding:12px;
+    background:var(--purple);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+.result{
+    display:none;
+    text-align:center;
+}
+.result h2{
+    color:var(--purple);
+}
+@media(max-width:480px){
+    .quiz-container{
+        padding:20px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="quiz-container" role="main" aria-label="Quiz Pilates">
+    <h1>Descubra seu Perfil no Pilates ✨</h1>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <form id="quizForm" autocomplete="off">
+        <div id="quiz"></div>
+        <div class="result" id="result"></div>
+        <!-- O botão de avançar será inserido dinamicamente -->
+    </form>
+</div>
+<script>
+(() => {
+const questions = [
+{q:"1️⃣ Qual sua idade?", options:["18-25 🎂","26-35 🌸","36-45 🌿","46-60 🌼","Acima de 60 💛"]},
+{q:"2️⃣ Qual seu peso atual? ⚖️", type:"number"},
+{q:"3️⃣ Qual sua altura? 📏", type:"number"},
+// ... (demais perguntas iguais ao seu array original)
+{q:"4️⃣ Você tem alguma condição de saúde diagnosticada?", options:["Nenhuma ✅","Hérnia de disco 🦴","Lombalgia 😖","Escoliose 📏","Pressão alta ❤️","Diabetes 🍬","Problemas na tireoide 🧬","Outros 📋"]},
+{q:"5️⃣ Está grávida ou suspeita?", options:["Sim 🤰","Não 🚫"]},
+{q:"6️⃣ Já fez cirurgia?", options:["Não ❌","Cesárea 👶","Abdominal 🏥","Coluna 🦴","Joelho/Quadril 🦵"]},
+{q:"7️⃣ Toma medicamento contínuo?", options:["Não 💊","Anticoncepcional 🌸","Tireoide 🧬","Pressão ❤️","Antidepressivo 🧠"]},
+{q:"8️⃣ Nível de estresse?", options:["Baixo 😌","Moderado 🙂","Alto 😣","Altíssimo 😰"]},
+{q:"9️⃣ Já praticou Pilates?", options:["Nunca ❌","Já pratiquei 🧘","Pratico atualmente 💪","Instrutora/avançada 🔥"]},
+{q:"🔟 Quanto tempo praticou?", options:["<3 meses ⏳","3-12 meses 📅","+1 ano 🏆","Não se aplica 🚫"]},
+{q:"1️⃣1️⃣ Exercício atual?", options:["Nenhum 🛋️","Caminhada 🚶","Musculação 🏋️","Corrida 🏃","Dança 💃","Yoga 🧘","Pilates 💛","Outros ✨"]},
+{q:"1️⃣2️⃣ Frequência semanal?", options:["Não me exercito 🚫","1x 📆","2-3x 📅","4-5x 💪","Todos os dias 🔥"]},
+{q:"1️⃣3️⃣ Sente dores ao praticar?", options:["Não 😊","Costas 🦴","Joelhos 🦵","Pescoço/Ombros 💢","Em geral 😖"]},
+{q:"1️⃣4️⃣ Já teve lesão?", options:["Não 🙌","Leve 🙂","Moderada 😕","Grave 🚑"]},
+{q:"1️⃣5️⃣ Como é sua postura?", options:["Boa 👍","Curvada 😕","Muito curvada 😣","Cruzo pernas 🪑","Muito tempo sentada 💻"]},
+{q:"1️⃣6️⃣ Dor nas costas?", options:["Nunca 🎉","Raramente 🙂","Às vezes 😐","Frequentemente 😣","Diariamente 😖"]},
+{q:"1️⃣7️⃣ Onde dói?", options:["Não sinto 😊","Cervical 🧠","Torácica 🦴","Lombar ⚡","Toda coluna 😣"]},
+{q:"1️⃣8️⃣ Dor nos joelhos?", options:["Nunca 😊","Escadas 🪜","Durante exercícios 🏃","Em repouso 🛌","Constante 😖"]},
+{q:"1️⃣9️⃣ Mobilidade pescoço?", options:["Boa 👍","Rigidez 😬","Dor 😣","Estalos 🔊","Muito limitada 🚫"]},
+{q:"2️⃣0️⃣ Ombros tensos?", options:["Não 😌","Frequentemente 😕","Sempre 😣","Só estresse 😰"]},
+{q:"2️⃣1️⃣ Força abdômen?", options:["Fraco 🫠","Moderado 🙂","Forte 💪","Não sei 🤷"]},
+{q:"2️⃣2️⃣ Escape de urina?", options:["Nunca 😊","Raramente 🙂","Às vezes 😐","Frequentemente 😣","Sempre 😖"]},
+{q:"2️⃣3️⃣ Refeições por dia?", options:["1-2 🍽️","3 🍲","4 🍛","5+ 🥗","Sem horário ⏰"]},
+{q:"2️⃣4️⃣ Belisca?", options:["Nunca 🙌","Raramente 🙂","Às vezes 😐","Frequentemente 😕","Sempre 😣"]},
+{q:"2️⃣5️⃣ Água diária?", options:["<1L 💧","1-2L 💦","2-3L 🚰","3L+ 🌊"]},
+{q:"2️⃣6️⃣ Álcool?", options:["Não 🚫","Social 🍷","1-2x semana 🍺","3x+ 🍻"]},
+{q:"2️⃣7️⃣ Alimentação?", options:["Saudável 🥗","Moderada 🍲","Precisa melhorar 😐","Não saudável 🍕"]},
+{q:"2️⃣8️⃣ Hábito noturno?", options:["Não 😴","Celular 📱","Café ☕","Ansiedade 😰","Todos 😖"]},
+{q:"2️⃣9️⃣ Horas de sono?", options:["<5h 😵","5-6h 😴","7-8h 🌙","8h+ ✨"]},
+{q:"3️⃣0️⃣ Qualidade do sono?", options:["Excelente 🌟","Boa 🙂","Regular 😐","Ruim 😕","Péssima 😣"]},
+{q:"3️⃣1️⃣ Objetivo principal?", options:["Emagrecer 🔥","Definir 💪","Postura 🧍","Aliviar dores 🩹","Reduzir estresse 😌"]},
+{q:"3️⃣2️⃣ Quanto quer perder?", options:["2-5kg ⚖️","6-10kg 🔥","11-15kg 💪","16-20kg 😮","+20kg 🚀"]},
+{q:"3️⃣3️⃣ Em quanto tempo?", options:["1 mês ⚡","2 meses ⏳","3 meses 📅","6 meses 🗓️","+6 meses 🌿"]},
+{q:"3️⃣4️⃣ Parte que incomoda?", options:["Abdômen 🤍","Glúteos 🍑","Pernas 🦵","Braços 💪","Costas 🦴","Tudo 😣"]},
+{q:"3️⃣5️⃣ Já tentou emagrecer?", options:["Nunca 🚫","Desisti 😕","Recuperei 😣","Sempre tentando 🔄"]},
+{q:"3️⃣6️⃣ Por que desistiu?", options:["Tempo ⏰","Resultados 😐","Dores 😖","Desmotivação 😞","Não se aplica 🚫"]},
+{q:"3️⃣7️⃣ Tempo diário?", options:["10-15min ⏳","15-30min 📆","30-45min 💪","45-60min 🔥","+1h 🚀"]},
+{q:"3️⃣8️⃣ Ambiente?", options:["Casa sozinha 🏠","Online 💻","Estúdio 🧘","Academia 🏋️","Ar livre 🌿"]},
+{q:"3️⃣9️⃣ Tipo treino?", options:["Solo 🧘","Faixas/bola 🎾","Aparelhos 🏋️","Misturado 🔄"]},
+{q:"4️⃣0️⃣ Motivação?", options:["0-3 😞","4-6 🙂","7-8 💪","9-10 🔥"]}
+];
+
+let current=0, answers=[];
+
+function loadQuestion(){
+    const quiz=document.getElementById("quiz");
+    quiz.innerHTML="";
+    
+    const q=questions[current];
+    
+    document.getElementById("progressBar").style.width=((current/questions.length)*100)+"%";
+    
+    const question=document.createElement("div");
+    question.className="question";
+    question.innerText=q.q;
+    
+    quiz.appendChild(question);
+
+    // Remove botão avançar anterior se existir
+    let btnAvancar = document.getElementById('btnAvancar');
+    if(btnAvancar) btnAvancar.remove();
+
+    if(q.type==="number"){
+        const label = document.createElement("label");
+        label.setAttribute("for", "inputNumber");
+        label.innerText = "Digite o valor:";
+        quiz.appendChild(label);
+
+        const input=document.createElement("input");
+        input.type="number";
+        input.id = "inputNumber";
+        input.required = true;
+
+        // Avança ao pressionar Enter
+        input.addEventListener('keydown', function(e){
+            if(e.key === "Enter"){
+                e.preventDefault();
+                if(input.value !== "") next(input.value);
+            }
+        });
+
+        quiz.appendChild(input);
+
+        // Botão avançar para mobile
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "btnAvancar";
+        btn.innerText = "Avançar";
+        btn.onclick = () => {
+            if(input.value !== "") next(input.value);
+            else input.focus();
+        };
+        quiz.parentNode.appendChild(btn);
+
+        input.focus();
+        
+    } else {
+        const options=document.createElement("div");
+        options.className="options";
+        q.options.forEach((opt,i)=>{
+            const btn=document.createElement("button");
+            btn.type = "button";
+            btn.className="option-btn";
+            btn.innerText=opt;
+            btn.setAttribute('tabindex', 0);
+            btn.onclick=()=>next(opt);
+            btn.onkeydown=(e)=>{
+                if(e.key==="Enter"||e.key===" "){
+                    e.preventDefault();
+                    next(opt);
+                }
+            };
+            options.appendChild(btn);
+        });
+        quiz.appendChild(options);
+        // Foco no primeiro botão
+        setTimeout(()=>{
+            const firstBtn = quiz.querySelector('.option-btn');
+            if(firstBtn) firstBtn.focus();
+        }, 50);
+    }
+}
+
+function next(answer){
+    if(answer === undefined || answer === null || answer === "") return; // Não avança sem resposta
+    answers.push(answer);
+    current++;
+    
+    // Remove botão avançar se existir
+    let btnAvancar = document.getElementById('btnAvancar');
+    if(btnAvancar) btnAvancar.remove();
+
+    if(current<questions.length){
+        loadQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult(){
+    document.getElementById("quiz").style.display="none";
+    document.getElementById("progressBar").style.width="100%";
+    
+    const result=document.getElementById("result");
+    result.style.display="block";
+
+    let profile="Perfil Iniciante com Dores 💛";
+    
+    if(answers[4]?.includes("Sim")) profile="Perfil Pós-Parto ou Gestante 🤰";
+    else if(answers[8]?.includes("Já")||answers[8]?.includes("Pratico")) profile="Perfil Ex-Praticante 🔥";
+    else if(answers[11]?.includes("Não")&&answers[39]?.includes("0-3")) profile="Perfil Sedentária com Sobrepeso 🌸";
+
+    result.innerHTML=`<h2>${profile}</h2>
+      <p>Com base nas suas respostas, criamos um plano ideal para você começar com segurança, eficiência e resultados reais.</p>
+      <p><strong>Próximo passo:</strong> Clique abaixo para receber seu plano personalizado.</p>
+      <button type="button" onclick="window.location.reload()">Refazer Quiz 🔄</button>`;
+}
+
+window.addEventListener('DOMContentLoaded', loadQuestion);
+
+})();
+</script>
+</body>
+</html>
